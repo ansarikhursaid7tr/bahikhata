@@ -330,7 +330,7 @@ context.pop();
                     error: (e, _) => Text('Error: $e'),
                     data: (itemTypes) {
                       for (final item in itemTypes) {
-                        _qtyControllers.putIfAbsent(item.id, () => TextEditingController(text: '0'));
+                        _qtyControllers.putIfAbsent(item.id, () => TextEditingController(text: ''));
                       }
 
                       return Column(
@@ -373,6 +373,7 @@ context.pop();
                                         decoration: InputDecoration(
                                           contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                                          hintText: '0',
                                         ),
                                       ),
                                     ),
