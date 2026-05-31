@@ -6,7 +6,7 @@ class Constants {
   static const String appName = 'BahiKhata';
 
   /// App version.
-  static const String appVersion = '1.0.0';
+  static const String appVersion = '1.0.1';
 
   /// Email domain used for username-to-email mapping.
   static const String emailDomain = 'bahikhata.local';

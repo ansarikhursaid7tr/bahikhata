@@ -17,8 +17,10 @@ void main() async {
 
   // Configure Persistence
   if (kIsWeb) {
-    // This logs the user out when they completely close the tab/PWA
-    await FirebaseAuth.instance.setPersistence(Persistence.SESSION);
+    // Android PWAs (WebAPKs) do NOT clear sessionStorage when swiped away.
+    // Persistence.NONE is the ONLY way to guarantee a logout on Android.
+    // (This has zero effect on the app updating/caching!)
+    await FirebaseAuth.instance.setPersistence(Persistence.NONE);
   }
 
   // Enable Firestore offline persistence

@@ -1,7 +1,7 @@
 name: bahi_khata
 description: "BahiKhata - Digital Ledger for Shop, Staff & Personal Records"
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.1+1
 
 environment:
   sdk: ^3.11.4
