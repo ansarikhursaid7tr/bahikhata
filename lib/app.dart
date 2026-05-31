@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme/app_theme.dart';
 import 'router.dart';
+import 'widgets/biometric_wrapper.dart';
 
 /// Root widget for BahiKhata app.
 class BahiKhataApp extends ConsumerWidget {
@@ -16,6 +17,7 @@ class BahiKhataApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       routerConfig: router,
+      builder: (context, child) => BiometricWrapper(child: child!),
     );
   }
 }

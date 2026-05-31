@@ -8,6 +8,7 @@ import '../utils/constants.dart';
 import '../utils/date_utils.dart';
 import '../utils/money_utils.dart';
 import '../widgets/summary_card.dart';
+import '../widgets/analytics_chart.dart';
 import '../widgets/sync_indicator.dart';
 import '../widgets/loading_view.dart';
 import '../models/enums.dart';
@@ -86,6 +87,16 @@ class DashboardScreen extends ConsumerWidget {
                           staffId: staffFilter,
                           currency: orgAsync.value?.currency ?? '\$',
                         ),
+
+                        // Analytics Chart (Owner Only)
+                        if (appUser.role == UserRole.owner) ...[
+                          const SizedBox(height: 24),
+                          _DashboardAnalytics(
+                            orgId: orgId,
+                            currentMonth: currentMonth,
+                            currency: orgAsync.value?.currency ?? '\$',
+                          ),
+                        ],
 
                         const SizedBox(height: 24),
 
@@ -442,3 +453,40 @@ class _NavItem {
   final String route;
   _NavItem(this.icon, this.label, this.route);
 }
+
+class _DashboardAnalytics extends ConsumerWidget {
+  final String orgId;
+  final String currentMonth;
+  final String currency;
+
+  const _DashboardAnalytics({
+    required this.orgId,
+    required this.currentMonth,
+    required this.currency,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Fetch production entries for the month
+    final monthProdQuery = DateStaffQuery(orgId, month: currentMonth);
+    final monthProdAsync = ref.watch(productionEntriesProvider(monthProdQuery));
+
+    // Fetch money entries for the month
+    final monthMoneyQuery = DateStaffQuery(orgId, month: currentMonth);
+    final monthMoneyAsync = ref.watch(moneyEntriesProvider(monthMoneyQuery));
+
+    if (monthProdAsync.isLoading || monthMoneyAsync.isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final prodEntries = monthProdAsync.value ?? [];
+    final moneyEntries = monthMoneyAsync.value ?? [];
+
+    return AnalyticsChart(
+      productionEntries: prodEntries,
+      moneyEntries: moneyEntries,
+      currency: currency,
+    );
+  }
+}
+
