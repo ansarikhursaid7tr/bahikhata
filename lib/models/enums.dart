@@ -24,7 +24,7 @@ enum UserRole {
   bool get canManageStaff => this == owner || this == admin || this == manager;
   bool get canManageUsers => this == owner || this == admin;
   bool get canAddEntries => this != staff;
-  bool get canEditEntries => this == owner || this == admin;
+  bool get canEditEntries => this == owner || this == admin || this == manager;
   bool get canViewAllData => this != staff;
   bool get canExport => this == owner || this == admin;
 }
