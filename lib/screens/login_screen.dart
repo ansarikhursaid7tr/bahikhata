@@ -5,7 +5,9 @@ import '../theme/app_theme.dart';
 import '../utils/constants.dart';
 import '../utils/validators.dart';
 import '../widgets/app_text_field.dart';
+import '../widgets/app_text_field.dart';
 import '../widgets/app_button.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Login screen with username/password fields.
 class LoginScreen extends ConsumerStatefulWidget {
@@ -38,6 +40,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       curve: Curves.easeOut,
     );
     _animController.forward();
+    _loadSavedEmail();
+  }
+
+  Future<void> _loadSavedEmail() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedEmail = prefs.getString('saved_email');
+      if (savedEmail != null && mounted) {
+        _usernameController.text = savedEmail;
+      }
+    } catch (_) {}
   }
 
   @override
@@ -62,6 +75,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         _usernameController.text.trim(),
         _passwordController.text,
       );
+      
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('saved_email', _usernameController.text.trim());
+      } catch (_) {}
+      
       // Router redirect handles navigation
     } catch (e) {
       setState(() {

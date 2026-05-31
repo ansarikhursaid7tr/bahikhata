@@ -15,8 +15,11 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // The app will default to Persistence.LOCAL across all platforms.
-  // This allows users to stay logged in across tabs and deployments.
+  // Configure Persistence
+  if (kIsWeb) {
+    // This logs the user out when they completely close the tab/PWA
+    await FirebaseAuth.instance.setPersistence(Persistence.SESSION);
+  }
 
   // Enable Firestore offline persistence
   FirebaseFirestore.instance.settings = const Settings(

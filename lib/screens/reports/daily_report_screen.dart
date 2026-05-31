@@ -208,56 +208,77 @@ class _DailyReportScreenState extends ConsumerState<DailyReportScreen> {
       );
     }
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Summary cards
-          Row(
-            children: [
-              _SummaryChip('Items', report.totalItems.toString(), AppTheme.primary),
-              const SizedBox(width: 8),
-              _SummaryChip('Production',
-                  MoneyUtils.formatCurrencyCompact(report.totalProduction, currency),
-                  AppTheme.accent),
-              const SizedBox(width: 8),
-              _SummaryChip('Payments',
-                  MoneyUtils.formatCurrencyCompact(report.totalPayments, currency),
-                  AppTheme.warning),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: AppTheme.primary.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.all(16),
+          sliver: SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('Net Payable',
-                    style: TextStyle(fontWeight: FontWeight.w600)),
-                Text(
-                  MoneyUtils.formatCurrencyCompact(report.netPayable, currency),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
-                    color: AppTheme.primary,
+                // Summary cards
+                Row(
+                  children: [
+                    _SummaryChip('Items', report.totalItems.toString(), AppTheme.primary),
+                    const SizedBox(width: 8),
+                    _SummaryChip('Production',
+                        MoneyUtils.formatCurrencyCompact(report.totalProduction, currency),
+                        AppTheme.accent),
+                    const SizedBox(width: 8),
+                    _SummaryChip('Payments',
+                        MoneyUtils.formatCurrencyCompact(report.totalPayments, currency),
+                        AppTheme.warning),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primary.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Net Payable',
+                          style: TextStyle(fontWeight: FontWeight.w600)),
+                      Text(
+                        MoneyUtils.formatCurrencyCompact(report.netPayable, currency),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          color: AppTheme.primary,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+                const SizedBox(height: 20),
               ],
             ),
           ),
-          const SizedBox(height: 20),
+        ),
 
-          // Production entries
-          if (report.productionEntries.isNotEmpty) ...[
-            Text('Production', style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 8),
-            ...report.productionEntries.map((entry) => Card(
+        // Production entries
+        if (report.productionEntries.isNotEmpty) ...[
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text('Production', style: Theme.of(context).textTheme.headlineSmall),
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverList.builder(
+              itemCount: report.productionEntries.length,
+              itemBuilder: (context, index) {
+                final entry = report.productionEntries[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 8),
                   child: Padding(
                     padding: const EdgeInsets.all(12),
                     child: Column(
@@ -266,16 +287,10 @@ class _DailyReportScreenState extends ConsumerState<DailyReportScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(entry.staffName,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.w600)),
+                            Text(entry.staffName, style: const TextStyle(fontWeight: FontWeight.w600)),
                             Text(
-                              MoneyUtils.formatCurrencyCompact(
-                                  entry.totalAmount, currency),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                                color: AppTheme.primary,
-                              ),
+                              MoneyUtils.formatCurrencyCompact(entry.totalAmount, currency),
+                              style: const TextStyle(fontWeight: FontWeight.w700, color: AppTheme.primary),
                             ),
                           ],
                         ),
@@ -296,45 +311,52 @@ class _DailyReportScreenState extends ConsumerState<DailyReportScreen> {
                       ],
                     ),
                   ),
-                )),
-          ],
+                );
+              },
+            ),
+          ),
+        ],
 
-          // Money entries
-          if (report.moneyEntries.isNotEmpty) ...[
-            const SizedBox(height: 16),
-            Text('Money Entries',
-                style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 8),
-            ...report.moneyEntries.map((entry) => Card(
+        // Money entries
+        if (report.moneyEntries.isNotEmpty) ...[
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            sliver: SliverToBoxAdapter(
+              child: Text('Money Entries', style: Theme.of(context).textTheme.headlineSmall),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            sliver: SliverList.builder(
+              itemCount: report.moneyEntries.length,
+              itemBuilder: (context, index) {
+                final entry = report.moneyEntries[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 8),
                   child: ListTile(
                     leading: CircleAvatar(
                       backgroundColor: entry.effect == MoneyEffect.decreasePayable
                           ? AppTheme.warning.withValues(alpha: 0.1)
                           : AppTheme.success.withValues(alpha: 0.1),
                       child: Icon(
-                        entry.effect == MoneyEffect.decreasePayable
-                            ? Icons.arrow_downward
-                            : Icons.arrow_upward,
-                        color: entry.effect == MoneyEffect.decreasePayable
-                            ? AppTheme.warning
-                            : AppTheme.success,
+                        entry.effect == MoneyEffect.decreasePayable ? Icons.arrow_downward : Icons.arrow_upward,
+                        color: entry.effect == MoneyEffect.decreasePayable ? AppTheme.warning : AppTheme.success,
                       ),
                     ),
                     title: Text(entry.staffName),
-                    subtitle: Text(
-                        '${entry.type.displayName}${entry.notes != null ? " — ${entry.notes}" : ""}'),
+                    subtitle: Text('${entry.type.displayName}${entry.notes != null ? " — ${entry.notes}" : ""}'),
                     trailing: Text(
                       MoneyUtils.formatCurrencyCompact(entry.amount, currency),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
-                      ),
+                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
                     ),
                   ),
-                )),
-          ],
+                );
+              },
+            ),
+          ),
         ],
-      ),
+        const SliverPadding(padding: EdgeInsets.only(bottom: 30)),
+      ],
     );
   }
 }
