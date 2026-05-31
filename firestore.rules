@@ -1,0 +1,124 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ─── Helper Functions ─────────────────────────────────────────
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserData(orgId) {
+      return get(/databases/$(database)/documents/organizations/$(orgId)/users/$(request.auth.uid)).data;
+    }
+
+    function getUserRole(orgId) {
+      return getUserData(orgId).role;
+    }
+
+    function isOwnerOrAdmin(orgId) {
+      return isAuthenticated() && getUserRole(orgId) in ['owner', 'admin'];
+    }
+
+    function isManager(orgId) {
+      return isAuthenticated() && getUserRole(orgId) == 'manager';
+    }
+
+    function isStaff(orgId) {
+      return isAuthenticated() && getUserRole(orgId) == 'staff';
+    }
+
+    function isMember(orgId) {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/organizations/$(orgId)/users/$(request.auth.uid));
+    }
+
+    function isStaffOwnData(orgId) {
+      return isStaff(orgId) &&
+        resource.data.staffId == getUserData(orgId).staffId;
+    }
+
+    // ─── Collection Group Queries ─────────────────────────────────
+    match /{path=**}/users/{userId} {
+      allow read: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+
+    // ─── Organizations ────────────────────────────────────────────
+    match /organizations/{orgId} {
+      allow read: if isAuthenticated() && isMember(orgId);
+      allow create: if isAuthenticated();
+      allow update: if isOwnerOrAdmin(orgId) || isManager(orgId);
+      allow delete: if false; // Never delete organizations
+
+      // ─── Users ──────────────────────────────────────────────────
+      match /users/{userId} {
+        allow read: if isAuthenticated() && isMember(orgId);
+        allow create: if isOwnerOrAdmin(orgId) || (request.auth.uid == userId && get(/databases/$(database)/documents/organizations/$(orgId)).data.ownerId == request.auth.uid);
+        allow update: if isOwnerOrAdmin(orgId);
+        allow delete: if isOwnerOrAdmin(orgId) && request.auth.uid != userId;
+      }
+
+      // ─── Staff ──────────────────────────────────────────────────
+      match /staff/{staffId} {
+        allow read: if isAuthenticated() && isMember(orgId);
+        allow create, update: if isOwnerOrAdmin(orgId) || isManager(orgId);
+        allow delete: if false; // Use soft delete (active: false)
+      }
+
+      // ─── Item Types ─────────────────────────────────────────────
+      match /itemTypes/{itemTypeId} {
+        allow read: if isAuthenticated() && isMember(orgId);
+        allow create, update: if isOwnerOrAdmin(orgId) || isManager(orgId);
+        allow delete: if false;
+      }
+
+      // ─── Monthly Rates ──────────────────────────────────────────
+      match /monthlyRates/{rateId} {
+        allow read: if isAuthenticated() && isMember(orgId);
+        allow create, update: if isOwnerOrAdmin(orgId) || isManager(orgId);
+        allow delete: if false;
+      }
+
+      // ─── Production Entries ─────────────────────────────────────
+      match /productionEntries/{entryId} {
+        // Owner/Admin/Manager can read all; Staff can only read own
+        allow read: if isAuthenticated() && (
+          isOwnerOrAdmin(orgId) ||
+          isManager(orgId) ||
+          isStaffOwnData(orgId)
+        );
+        // Owner/Admin/Manager can create
+        allow create: if isAuthenticated() && (
+          isOwnerOrAdmin(orgId) || isManager(orgId)
+        );
+        // Only Owner/Admin/Manager can update or delete
+        allow update, delete: if isOwnerOrAdmin(orgId) || isManager(orgId);
+      }
+
+      // ─── Money Entries ──────────────────────────────────────────
+      match /moneyEntries/{entryId} {
+        allow read: if isAuthenticated() && (
+          isOwnerOrAdmin(orgId) ||
+          isManager(orgId) ||
+          isStaffOwnData(orgId)
+        );
+        allow create: if isAuthenticated() && (
+          isOwnerOrAdmin(orgId) || isManager(orgId)
+        );
+        allow update, delete: if isOwnerOrAdmin(orgId) || isManager(orgId);
+      }
+
+      // ─── Quotations ──────────────────────────────────────────────
+      match /quotations/{quotationId} {
+        allow read: if isAuthenticated() && isMember(orgId);
+        allow create, update, delete: if isOwnerOrAdmin(orgId) || isManager(orgId);
+      }
+
+      // ─── Audit Logs ────────────────────────────────────────────
+      match /auditLogs/{logId} {
+        allow read: if isOwnerOrAdmin(orgId);
+        allow create: if isAuthenticated() && isMember(orgId);
+        allow update, delete: if false; // Audit logs are immutable
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "998488215961",
+    "project_id": "bahikhata-b9521",
+    "storage_bucket": "bahikhata-b9521.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:998488215961:android:cb10553b1312614d0f0308",
+        "android_client_info": {
+          "package_name": "com.bahikhata.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCdFCbTWlOZTjEmXHyfyugIWAeut_SAvNw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
