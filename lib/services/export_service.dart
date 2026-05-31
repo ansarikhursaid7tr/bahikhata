@@ -8,8 +8,6 @@ import 'package:csv/csv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:printing/printing.dart';
-import 'web_download_stub.dart'
-    if (dart.library.js_interop) 'web_download_web.dart';
 import 'report_service.dart';
 import '../models/production_entry_model.dart';
 import '../models/money_entry_model.dart';
@@ -653,7 +651,12 @@ class ExportService {
   Future<void> _savePdf(pw.Document pdf, String filename) async {
     final bytes = await pdf.save();
     if (kIsWeb) {
-      triggerWebDownload(bytes, '$filename.pdf', 'application/pdf');
+      // Use SharePlus on Web. This natively triggers the Web Share API
+      // (iOS Share Sheet, Android Share) on mobile browsers.
+      // If Web Share API is unsupported (like Desktop Chrome), it falls back to an anchor download.
+      await Share.shareXFiles(
+        [XFile.fromData(bytes, name: '$filename.pdf', mimeType: 'application/pdf')],
+      );
     } else {
       await Printing.sharePdf(
         bytes: bytes,

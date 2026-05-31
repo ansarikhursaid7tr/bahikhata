@@ -81,6 +81,16 @@
         renderer: "canvaskit",
       },
       onEntrypointLoaded: async function(engineInitializer) {
+        // Unregister any existing service workers so users always get the latest
+        // deployment from Vercel upon reloading the page.
+        if ('serviceWorker' in navigator) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for(let registration of registrations) {
+              registration.unregister();
+            }
+          });
+        }
+
         const appRunner = await engineInitializer.initializeEngine();
         await appRunner.runApp();
         // Hide loading screen once Flutter is painted
