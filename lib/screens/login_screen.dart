@@ -285,12 +285,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               ),
                             ),
                           ),
-                          const SizedBox(height: 24),
-                          Text(
-                            'v1.0.0',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.6),
-                              fontSize: 12,
+                          Positioned(
+                            bottom: 20,
+                            child: Text(
+                              'v${Constants.appVersion}',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.7),
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                         ],
