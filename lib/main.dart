@@ -17,8 +17,9 @@ void main() async {
 
   // Configure Persistence
   if (kIsWeb) {
-    // This logs the user out when they completely close the tab/PWA
-    await FirebaseAuth.instance.setPersistence(Persistence.SESSION);
+    // Persistence.NONE forces the user to log in every time the app starts,
+    // which guarantees that swiping away the PWA logs them out.
+    await FirebaseAuth.instance.setPersistence(Persistence.NONE);
   }
 
   // Enable Firestore offline persistence
