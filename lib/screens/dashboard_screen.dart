@@ -95,6 +95,7 @@ class DashboardScreen extends ConsumerWidget {
                             orgId: orgId,
                             currentMonth: currentMonth,
                             currency: orgAsync.value?.currency ?? '\$',
+                            calendarType: calendarType,
                           ),
                         ],
 
@@ -458,11 +459,13 @@ class _DashboardAnalytics extends ConsumerWidget {
   final String orgId;
   final String currentMonth;
   final String currency;
+  final String calendarType;
 
   const _DashboardAnalytics({
     required this.orgId,
     required this.currentMonth,
     required this.currency,
+    this.calendarType = 'AD',
   });
 
   @override
@@ -486,7 +489,9 @@ class _DashboardAnalytics extends ConsumerWidget {
       productionEntries: prodEntries,
       moneyEntries: moneyEntries,
       currency: currency,
+      calendarType: calendarType,
     );
   }
 }
+
 
