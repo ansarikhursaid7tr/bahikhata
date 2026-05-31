@@ -104,7 +104,7 @@ class AnalyticsChart extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              '7-Day Trend',
+              '7-Day Trends',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 4),
