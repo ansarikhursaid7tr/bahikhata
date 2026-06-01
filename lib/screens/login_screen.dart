@@ -5,7 +5,6 @@ import '../theme/app_theme.dart';
 import '../utils/constants.dart';
 import '../utils/validators.dart';
 import '../widgets/app_text_field.dart';
-import '../widgets/app_text_field.dart';
 import '../widgets/app_button.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,18 +26,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   String? _errorMessage;
   late AnimationController _animController;
   late Animation<double> _fadeAnim;
+  late Animation<Offset> _slideAnim;
 
   @override
   void initState() {
     super.initState();
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 900),
     );
     _fadeAnim = CurvedAnimation(
       parent: _animController,
       curve: Curves.easeOut,
     );
+    _slideAnim = Tween<Offset>(
+      begin: const Offset(0, 0.08),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animController,
+      curve: Curves.easeOutCubic,
+    ));
     _animController.forward();
     _loadSavedEmail();
   }
@@ -99,201 +106,220 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF1E3A8A), Color(0xFF3B82F6), Color(0xFF93C5FD)],
-            stops: [0.0, 0.6, 1.0],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            colors: [Color(0xFF0F1B4C), Color(0xFF1E3A8A), Color(0xFF3B82F6)],
+            stops: [0.0, 0.5, 1.0],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
         child: Stack(
           children: [
             // Decorative circles
             Positioned(
-              top: -50,
-              right: -50,
+              top: -80,
+              right: -60,
               child: Container(
-                width: 200,
-                height: 200,
+                width: 220,
+                height: 220,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.1),
+                  color: Colors.white.withValues(alpha: 0.06),
                 ),
               ),
             ),
             Positioned(
-              bottom: -100,
-              left: -50,
+              top: 60,
+              right: 40,
+              child: Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.04),
+                ),
+              ),
+            ),
+            Positioned(
+              bottom: -120,
+              left: -60,
               child: Container(
                 width: 300,
                 height: 300,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.05),
+                  color: Colors.white.withValues(alpha: 0.04),
                 ),
               ),
             ),
             SafeArea(
               child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 450),
+                  constraints: const BoxConstraints(maxWidth: 420),
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 28),
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: FadeTransition(
                       opacity: _fadeAnim,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const SizedBox(height: 40),
-                          // Login Card
-                          Container(
-                            padding: const EdgeInsets.all(24),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.15),
-                                  blurRadius: 30,
-                                  offset: const Offset(0, 10),
-                                ),
-                              ],
-                            ),
-                            child: Form(
-                              key: _formKey,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Logo inside card
-                                  Center(
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          width: 70,
-                                          height: 70,
-                                          decoration: BoxDecoration(
-                                            gradient: AppTheme.accentGradient,
-                                            borderRadius: BorderRadius.circular(16),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: AppTheme.accent.withValues(alpha: 0.3),
-                                                blurRadius: 16,
-                                                offset: const Offset(0, 6),
-                                              ),
-                                            ],
-                                          ),
-                                          child: const Icon(
-                                            Icons.menu_book_rounded,
-                                            color: Colors.white,
-                                            size: 32,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 16),
-                                        Text(
-                                          Constants.appName,
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .headlineSmall
-                                              ?.copyWith(
-                                                color: AppTheme.textPrimary,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                        ),
-                                      ],
-                                    ),
+                      child: SlideTransition(
+                        position: _slideAnim,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(height: 48),
+                            // Login Card
+                            Container(
+                              padding: const EdgeInsets.fromLTRB(28, 36, 28, 28),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(24),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: const Color(0xFF0F1B4C).withValues(alpha: 0.25),
+                                    blurRadius: 40,
+                                    offset: const Offset(0, 16),
                                   ),
-                                  const SizedBox(height: 24),
-                                  Row(
-                                    children: [
-                                      const Expanded(child: Divider()),
-                                      const SizedBox(width: 16),
-                                      Text(
-                                        'Welcome',
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleMedium
-                                            ?.copyWith(
-                                              color: AppTheme.textSecondary,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                      ),
-                                      const SizedBox(width: 16),
-                                      const Expanded(child: Divider()),
-                                    ],
+                                  BoxShadow(
+                                    color: Colors.white.withValues(alpha: 0.8),
+                                    blurRadius: 1,
+                                    spreadRadius: 0,
                                   ),
-                                  const SizedBox(height: 24),
-                                  AppTextField(
-                                    label: 'Username',
-                                    hint: 'Enter your username',
-                                    controller: _usernameController,
-                                    validator: Validators.validateUsername,
-                                    prefixIcon: const Icon(Icons.person_outline),
-                                    keyboardType: TextInputType.text,
-                                  ),
-                                  const SizedBox(height: 16),
-                                  AppTextField(
-                                    label: 'Password',
-                                    hint: 'Enter your password',
-                                    controller: _passwordController,
-                                    validator: Validators.validatePassword,
-                                    obscureText: _obscurePassword,
-                                    prefixIcon: const Icon(Icons.lock_outline),
-                                    suffixIcon: IconButton(
-                                      icon: Icon(
-                                        _obscurePassword
-                                            ? Icons.visibility_outlined
-                                            : Icons.visibility_off_outlined,
-                                        color: AppTheme.textLight,
-                                      ),
-                                      onPressed: () => setState(
-                                          () => _obscurePassword = !_obscurePassword),
-                                    ),
-                                  ),
-                                  if (_errorMessage != null) ...[
-                                    const SizedBox(height: 16),
-                                    Container(
-                                      padding: const EdgeInsets.all(12),
-                                      decoration: BoxDecoration(
-                                        color: AppTheme.danger.withValues(alpha: 0.1),
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      child: Row(
+                                ],
+                              ),
+                              child: Form(
+                                key: _formKey,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Logo + App Name
+                                    Center(
+                                      child: Column(
                                         children: [
-                                          const Icon(Icons.error_outline,
-                                              color: AppTheme.danger, size: 18),
-                                          const SizedBox(width: 8),
-                                          Expanded(
-                                            child: Text(
-                                              _errorMessage!,
-                                              style: const TextStyle(
-                                                color: AppTheme.danger,
-                                                fontSize: 13,
-                                              ),
+                                          Container(
+                                            width: 64,
+                                            height: 64,
+                                            decoration: BoxDecoration(
+                                              gradient: AppTheme.accentGradient,
+                                              borderRadius: BorderRadius.circular(18),
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: AppTheme.accent.withValues(alpha: 0.35),
+                                                  blurRadius: 20,
+                                                  offset: const Offset(0, 8),
+                                                ),
+                                              ],
                                             ),
+                                            child: const Icon(
+                                              Icons.menu_book_rounded,
+                                              color: Colors.white,
+                                              size: 30,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 16),
+                                          Text(
+                                            Constants.appName,
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headlineSmall
+                                                ?.copyWith(
+                                                  color: AppTheme.textPrimary,
+                                                  fontWeight: FontWeight.bold,
+                                                  letterSpacing: 0.3,
+                                                ),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Text(
+                                            'Sign in to continue',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium
+                                                ?.copyWith(
+                                                  color: AppTheme.textLight,
+                                                  fontSize: 14,
+                                                ),
                                           ),
                                         ],
                                       ),
                                     ),
+                                    const SizedBox(height: 32),
+                                    AppTextField(
+                                      label: 'Username',
+                                      hint: 'Enter your username',
+                                      controller: _usernameController,
+                                      validator: Validators.validateUsername,
+                                      prefixIcon: const Icon(Icons.person_outline, size: 20),
+                                      keyboardType: TextInputType.text,
+                                    ),
+                                    const SizedBox(height: 18),
+                                    AppTextField(
+                                      label: 'Password',
+                                      hint: 'Enter your password',
+                                      controller: _passwordController,
+                                      validator: Validators.validatePassword,
+                                      obscureText: _obscurePassword,
+                                      prefixIcon: const Icon(Icons.lock_outline, size: 20),
+                                      suffixIcon: IconButton(
+                                        icon: Icon(
+                                          _obscurePassword
+                                              ? Icons.visibility_outlined
+                                              : Icons.visibility_off_outlined,
+                                          color: AppTheme.textLight,
+                                          size: 20,
+                                        ),
+                                        onPressed: () => setState(
+                                            () => _obscurePassword = !_obscurePassword),
+                                      ),
+                                    ),
+                                    if (_errorMessage != null) ...[
+                                      const SizedBox(height: 16),
+                                      Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color: AppTheme.danger.withValues(alpha: 0.08),
+                                          borderRadius: BorderRadius.circular(12),
+                                          border: Border.all(
+                                            color: AppTheme.danger.withValues(alpha: 0.2),
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            const Icon(Icons.error_outline,
+                                                color: AppTheme.danger, size: 18),
+                                            const SizedBox(width: 10),
+                                            Expanded(
+                                              child: Text(
+                                                _errorMessage!,
+                                                style: const TextStyle(
+                                                  color: AppTheme.danger,
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                    const SizedBox(height: 28),
+                                    AppButton(
+                                      label: 'Sign In',
+                                      onPressed: _login,
+                                      isLoading: _isLoading,
+                                      icon: Icons.login,
+                                    ),
                                   ],
-                                  const SizedBox(height: 24),
-                                  AppButton(
-                                    label: 'Sign In',
-                                    onPressed: _login,
-                                    isLoading: _isLoading,
-                                    icon: Icons.login,
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(height: 24),
-                          Text(
-                            'v${Constants.appVersion}',
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.7),
-                              fontSize: 12,
+                            const SizedBox(height: 28),
+                            Text(
+                              'v${Constants.appVersion}',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.5),
+                                fontSize: 12,
+                                letterSpacing: 0.5,
+                              ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 16),
+                          ],
+                        ),
                       ),
                     ),
                   ),

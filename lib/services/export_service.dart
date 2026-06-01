@@ -552,12 +552,12 @@ class ExportService {
     pdf.addPage(
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(40),
+        margin: const pw.EdgeInsets.symmetric(horizontal: 28, vertical: 20),
         footer: (pw.Context context) {
           return pw.Center(
             child: pw.Column(
               children: [
-                pw.SizedBox(height: 24),
+                pw.SizedBox(height: 12),
                 pw.Text(
                   'QUALITY YOU CAN TRUST',
                   style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold, fontStyle: pw.FontStyle.italic),
@@ -584,14 +584,14 @@ class ExportService {
               contact: contact,
             ),
             pw.Divider(color: PdfColors.grey400, thickness: 1),
-            pw.SizedBox(height: 16),
+            pw.SizedBox(height: 10),
             pw.Center(
               child: pw.Text(
                 quotation.title,
                 style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold, decoration: pw.TextDecoration.underline),
               ),
             ),
-            pw.SizedBox(height: 20),
+            pw.SizedBox(height: 10),
             ...quotation.sections.map((section) {
               final isNewGroup = section.groupName.isNotEmpty && section.groupName != lastGroup;
               if (isNewGroup) lastGroup = section.groupName;
@@ -600,14 +600,14 @@ class ExportService {
                 crossAxisAlignment: pw.CrossAxisAlignment.start,
                 children: [
                   if (isNewGroup) ...[
-                    pw.SizedBox(height: 8),
+                    pw.SizedBox(height: 6),
                     pw.Center(
                       child: pw.Text(
                         section.groupName,
                         style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, decoration: pw.TextDecoration.underline),
                       ),
                     ),
-                    pw.SizedBox(height: 16),
+                    pw.SizedBox(height: 10),
                   ],
                   if (section.sectionName.isNotEmpty) ...[
                     pw.Text(section.sectionName, style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 12)),
@@ -617,6 +617,12 @@ class ExportService {
                     headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10),
                     cellStyle: const pw.TextStyle(fontSize: 10),
                     headerDecoration: pw.BoxDecoration(color: PdfColor.fromHex('#E8EAF6')),
+                    headerAlignments: {
+                      0: pw.Alignment.center,
+                    },
+                    cellAlignments: {
+                      0: pw.Alignment.center,
+                    },
                     headers: ['S.N.', 'Items', 'Amount'],
                     data: section.items.asMap().entries.map((entry) => [
                           (entry.key + 1).toString(),
@@ -629,16 +635,42 @@ class ExportService {
                       2: const pw.FixedColumnWidth(80),
                     },
                   ),
-                  pw.SizedBox(height: 16),
+                  pw.SizedBox(height: 8),
                 ],
               );
             }).toList(),
             if (quotation.note.isNotEmpty) ...[
-              pw.SizedBox(height: 16),
-              pw.Text(
-                'Note: ${quotation.note}',
-                style: const pw.TextStyle(fontSize: 10),
-              ),
+              pw.SizedBox(height: 8),
+              () {
+                final lines = quotation.note
+                    .split('\n')
+                    .map((l) => l.trim())
+                    .where((l) => l.isNotEmpty)
+                    .toList();
+                if (lines.length <= 1) {
+                  return pw.Text(
+                    'Note: ${quotation.note}',
+                    style: const pw.TextStyle(fontSize: 10),
+                  );
+                }
+                return pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.Text(
+                      'Note:',
+                      style: pw.TextStyle(fontSize: 10, fontWeight: pw.FontWeight.bold),
+                    ),
+                    pw.SizedBox(height: 2),
+                    ...lines.asMap().entries.map((entry) => pw.Padding(
+                      padding: const pw.EdgeInsets.only(left: 8, top: 1),
+                      child: pw.Text(
+                        '${entry.key + 1}. ${entry.value}',
+                        style: const pw.TextStyle(fontSize: 10),
+                      ),
+                    )),
+                  ],
+                );
+              }(),
             ],
           ];
         },
